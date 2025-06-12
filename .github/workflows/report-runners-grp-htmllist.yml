@@ -1,0 +1,53 @@
+name: Generate Runner Report
+
+on:
+  workflow_dispatch:
+
+jobs:
+  runner-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup GitHub CLI
+        uses: cli/cli-action@v2
+
+      - name: Generate HTML Report
+        run: |
+          echo "<html><head><title>Runner Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+            table { border-collapse: collapse; width: 100%; background: white; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #4CAF50; color: white; }
+            tr:nth-child(even) { background-color: #f2f2f2; }
+          </style></head><body><h2>GitHub Runners Report</h2>" > runner-report.html
+
+          echo "<table><tr><th>Runner Name</th><th>OS</th><th>Status</th><th>Runner Group</th></tr>" >> runner-report.html
+
+          # Set GitHub CLI authentication
+          echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
+
+          # Replace with your repo
+          ORG=$(echo "${{ github.repository }}" | cut -d/ -f1)
+          REPO=$(echo "${{ github.repository }}" | cut -d/ -f2)
+
+          RUNNERS=$(gh api /repos/$ORG/$REPO/actions/runners | jq -c '.runners[]')
+
+          for runner in $RUNNERS; do
+            NAME=$(echo "$runner" | jq -r '.name')
+            OS=$(echo "$runner" | jq -r '.os')
+            STATUS=$(echo "$runner" | jq -r '.status')
+            GROUP=$(echo "$runner" | jq -r '.group.name // "Default"')
+            echo "<tr><td>$NAME</td><td>$OS</td><td>$STATUS</td><td>$GROUP</td></tr>" >> runner-report.html
+          done
+
+          echo "</table></body></html>" >> runner-report.html
+
+      - name: Upload HTML Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: runner-report
+          path: runner-report.html
