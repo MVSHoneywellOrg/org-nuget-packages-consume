@@ -1,0 +1,30 @@
+name: List Runner Info from Workflows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  extract-workflow-runner-info:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: List workflow files
+        run: |
+          echo "Fetching workflow files from .github/workflows"
+          ls -1 .github/workflows/*.yml > workflow_files.txt || echo "No workflows found"
+          cat workflow_files.txt
+
+      - name: Extract runner info from workflow files
+        run: |
+          echo "Runners used by workflows:"
+          echo "============================"
+          for file in $(cat workflow_files.txt); do
+            echo "--- $file ---"
+            grep -i 'runs-on:' "$file" || echo "No runner specified"
+            echo ""
+          done
