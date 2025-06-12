@@ -47,7 +47,7 @@ jobs:
           echo "</table></body></html>" >> runner-report.html
 
       - name: Upload HTML Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: runner-report
           path: runner-report.html
