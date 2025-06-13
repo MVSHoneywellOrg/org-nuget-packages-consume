@@ -1,4 +1,6 @@
 name: Build on MVS Windows Runner
+permissions:
+  contents: read
 
 on:
   push:
