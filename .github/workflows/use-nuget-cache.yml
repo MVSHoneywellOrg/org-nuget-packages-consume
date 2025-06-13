@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download artifact from Cache repo that is org-nuget-packages
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v6
         with:
           name: nuget-cache
           repo: MVSHoneywellOrg/org-nuget-packages
